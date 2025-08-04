@@ -355,3 +355,180 @@ export const analyzeBridgeType = (input) => {
   // Default to quote for philosophical, moral, spiritual themes
   return 'quote'
 }
+
+export const generateCaptionPrompt = (userInput, hashtagMode = 'auto', customHashtags = '', specificPlatform = null) => {
+  const hashtagInstructions = hashtagMode === 'custom' && customHashtags.trim() 
+    ? `Use these custom hashtags: ${customHashtags}`
+    : `Generate SEO-optimized hashtags automatically`
+
+  const platformFilter = specificPlatform ? `Generate ONLY the ${specificPlatform.toUpperCase()} caption.` : ''
+
+  return `## Caption Generator: SEO + Viral Captions for TikTok, Instagram, and YouTube Shorts
+
+**Purpose:**
+Generate platform-optimized, emotionally engaging, algorithm-friendly captions based on the provided content using the following structures:
+
+**Content to work with:**
+${userInput}
+
+---
+
+### 📱 TikTok/Instagram Caption Structure:
+**Format:** Fresh Hook + Reflection + Hashtags (3-6 lines max)
+
+**🧠 CRITICAL - FRESH HOOK GENERATION LOGIC:**
+**DO NOT COPY/REUSE INPUT LINES DIRECTLY**
+- Extract the emotional/thematic essence from the input
+- Generate a completely FRESH hook using viral formats below
+- Create scroll-stopping tension that forces engagement
+
+**🔥 Viral Hook Formats to Rotate Between:**
+
+**Format 1 - Contradiction Hooks:**
+- "If X is true… then why Y?"
+- "People say X. But actually… Y."
+- Examples: "If love is equal… why do men cheat more?" / "People say love should be equal. But women give more — or it breaks."
+
+**Format 2 - Truth Bomb Hooks:**
+- "You're not ready to hear this, but…"
+- "Here's why [demographic] stopped [action]… and yes, [consequence]."
+- Examples: "You're not ready to hear this, but women need to love more." / "Here's why good men stopped asking women out… and yes, women notice."
+
+**Format 3 - Mirror Hooks (Exposing what viewers won't admit):**
+- "Why [percentage]% of [group] will never [goal] – and [group] say they're [excuse]?"
+- "[He/She] says X. [He/She] says Y. Why [situation]?"
+- Examples: "Why 99% of men will never meet a woman's requirements – and women say they're picky?" / "He says chivalry is dead. She says dating a broke man shows a lack of effort."
+
+**Format 4 - Philosophical Paradox Hooks:**
+- "Everyone says X… but now [group] say [contradiction]."
+- "[Action] is dying—no one wants [thing] anymore. But [group] says [thing] is still [value]."
+- Examples: "Everyone says toxic masculinity is real… but now men say being masculine is canceled." / "Marriage is dying—no one wants to get married anymore. But Gen Z says marriage is still sacred."
+
+**Structure:**
+1. **[Fresh Hook Line]** - Generate using viral formats above (DO NOT COPY INPUT)
+   - Extract theme from input, create NEW emotional tension
+   - Use contradiction, truth bomb, mirror, or paradox format
+   - Must be scroll-stopping and debate-triggering
+
+2. **[Reflection Lines - 1-2 sentences]** - Build on the fresh hook's tension
+   - Expand the philosophical/emotional conflict introduced by hook
+   - Create curiosity gap that demands engagement
+   - Connect back to input theme without repeating exact phrases
+
+3. **[Hashtags - 8-12 max]** - High SEO, medium-niche blend
+   - 3-4 broad-reach tags (#Philosophy #Spirituality #Truth #ModernLove)
+   - 2-3 mid-tier niche tags (#GenderDynamics #EmotionalIntelligence #RelationshipWisdom)  
+   - 2-3 personal brand/campaign tags (#LoveTruths #MindShift #WakeUpReels)
+
+---
+
+### 📺 YouTube Shorts Caption Structure:
+**Format:** Fresh Title + Summary + CTA + Hashtags (4-7 lines)
+
+**🧠 CRITICAL - FRESH TITLE GENERATION LOGIC:**
+**DO NOT COPY/REUSE INPUT TITLE DIRECTLY**
+- Extract the core question/theme from input
+- Generate a completely FRESH title using viral question formats
+- Create curiosity that demands clicking and watching
+
+**🔥 Viral YouTube Title Formats:**
+
+**Format 1 - Question Hooks:**
+- "Do [Group] Need to [Action] More?"
+- "Why [Group] Are [Emotion] Than Ever?"
+- Examples: "Do Women Need to Love More?" / "Why Young Men Are Lonelier Than Ever?"
+
+**Format 2 - Controversial Statements:**
+- "Why [Percentage]% of [Group] Will Never [Goal]"
+- "[Group] Say [Statement] — But Is It True?"
+- Examples: "Why 99% of Men Will Never Meet Modern Standards" / "Women Say Men Are the Problem — But Is It True?"
+
+**Format 3 - Revelation Hooks:**
+- "What Happens When [Scenario]"
+- "The Real Reason [Group] [Action]"
+- Examples: "What Happens When Women Stop Chasing" / "The Real Reason Men Stopped Approaching"
+
+**Structure:**
+1. **[Fresh Title Line]** - Generate using viral formats above (DO NOT COPY INPUT)
+   - Extract core theme, create NEW curiosity-driven question
+   - Use question, controversial, or revelation format
+   - Must trigger click impulse and algorithmic engagement
+
+2. **[Summary - 2-3 sentences]** - Expand on title's theme with philosophical depth
+   - Include searchable keywords naturally (psychology, relationships, society, etc.)
+   - Build emotional and intellectual intrigue
+   - Connect to broader cultural conversations
+
+3. **[CTA/Teaser Line]** - Engagement hook that promises transformation
+   - Examples: "Watch till the end — it might change how you love forever." / "This perspective could shift everything you thought you knew."
+
+4. **[Hashtags - Up to 15]** - SEO and niche-targeted
+   - Include broad SEO terms: #ModernLove #Psychology #RelationshipWisdom #DeepTalks
+   - Add specific niche terms: #GenderDynamics #EmotionalIntelligence #SocialTrends #CulturalShift
+
+---
+
+### 🏷️ Hashtag Instructions:
+${hashtagInstructions}
+
+### Platform Generation:
+${platformFilter || 'Generate captions for ALL THREE platforms: TikTok, Instagram, and YouTube Shorts.'}
+
+**Tone Requirements:**
+- Mirror the script tone (emotional, educational, assertive)
+- Maintain philosophical depth and emotional intelligence
+- Create curiosity and engagement
+- Use keywords naturally for SEO optimization
+
+**🚨 CRITICAL GENERATION RULES:**
+1. **NO COPYING**: Never copy exact lines from input - extract themes and create fresh hooks
+2. **PLATFORM VARIATION**: Each platform must have genuinely different hook approaches
+3. **VIRAL FORMATS**: Rotate between contradiction, truth bomb, mirror, and paradox formats
+4. **EMOTIONAL TESTING**: Every hook must trigger either curiosity, controversy, or emotional tension
+5. **ALGORITHM OPTIMIZATION**: Structure for maximum engagement and debate-triggering
+
+---
+
+### Output Format:
+
+${specificPlatform ? `
+${specificPlatform.toUpperCase()} CAPTION:
+[Generate the specific platform caption following the fresh hook generation structure above]
+` : `
+TIKTOK CAPTION:
+[FRESH hook using viral format - DO NOT COPY INPUT LINES]
+
+[Reflection building on hook tension - expand philosophical conflict]
+
+[Hashtags - 8-12 optimized for viral engagement]
+
+---
+
+INSTAGRAM CAPTION:
+[DIFFERENT fresh hook than TikTok - use different viral format]
+
+[Reflection with new angle on theme - create curiosity gap]
+
+[Hashtags - 8-12 optimized for discovery and engagement]
+
+---
+
+YOUTUBE CAPTION:
+[FRESH title using viral question/controversy format - NOT input title]
+
+[Summary expanding theme with psychological depth and keywords]
+
+[CTA promising mindset transformation or revelation]
+
+[Hashtags - up to 15 SEO and engagement-optimized tags]
+`}
+
+**🎯 GENERATION PROCESS:**
+1. **Extract** the emotional/thematic essence from input (don't copy lines)
+2. **Generate** fresh hooks using viral formats for each platform
+3. **Ensure** each platform has genuinely different approaches and angles
+4. **Test** that each hook triggers curiosity, controversy, or emotional response
+5. **Optimize** for platform-specific algorithms and user behavior
+
+**Analysis the content and generate the captions following the exact structures above.**`
+}

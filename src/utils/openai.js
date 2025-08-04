@@ -136,3 +136,150 @@ export const parseGPTResponse = (response) => {
     }
   }
 }
+
+export const generateCaptionWithGPT = async (prompt, apiKey) => {
+  if (!apiKey) {
+    throw new Error('OpenAI API key is required')
+  }
+
+  try {
+    const response = await fetch(OPENAI_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        messages: [
+          {
+            role: 'system',
+            content: `You are a viral content creator assistant specializing in SEO-optimized captions for TikTok, Instagram, and YouTube Shorts. You generate emotionally engaging, algorithm-friendly captions that combine emotional hooks with strategic hashtag placement. Always follow the exact caption structures and output format requested.`
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        max_tokens: 2000,
+        temperature: 0.7,
+        top_p: 0.9,
+        frequency_penalty: 0.2,
+        presence_penalty: 0.2
+      })
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.error?.message || `API Error: ${response.status}`)
+    }
+
+    const data = await response.json()
+    return data.choices[0]?.message?.content || 'No response generated'
+
+  } catch (error) {
+    console.error('OpenAI API Error:', error)
+    throw error
+  }
+}
+
+export const parseCaptionResponse = (response) => {
+  try {
+    console.log('Raw Caption Response:', response) // Debug log
+    
+    const sections = response.split('---').filter(section => section.trim())
+    
+    let tiktokCaption = ''
+    let instagramCaption = ''
+    let youtubeCaption = ''
+    
+    // Parse each section
+    for (let section of sections) {
+      section = section.trim()
+      
+      if (section.includes('TIKTOK CAPTION') || section.includes('TikTok CAPTION')) {
+        tiktokCaption = extractCaptionContent(section, 'TIKTOK')
+      } else if (section.includes('INSTAGRAM CAPTION') || section.includes('Instagram CAPTION')) {
+        instagramCaption = extractCaptionContent(section, 'INSTAGRAM')
+      } else if (section.includes('YOUTUBE CAPTION') || section.includes('YouTube CAPTION')) {
+        youtubeCaption = extractCaptionContent(section, 'YOUTUBE')
+      }
+    }
+    
+    // Fallback parsing if sections not found
+    if (!tiktokCaption || !instagramCaption || !youtubeCaption) {
+      const fallbackParse = fallbackCaptionParsing(response)
+      tiktokCaption = tiktokCaption || fallbackParse.tiktok
+      instagramCaption = instagramCaption || fallbackParse.instagram
+      youtubeCaption = youtubeCaption || fallbackParse.youtube
+    }
+    
+    console.log('Parsed Captions:', { tiktokCaption, instagramCaption, youtubeCaption }) // Debug log
+    
+    return {
+      tiktok: tiktokCaption || 'TikTok caption generated',
+      instagram: instagramCaption || 'Instagram caption generated', 
+      youtube: youtubeCaption || 'YouTube caption generated'
+    }
+  } catch (error) {
+    console.error('Error parsing caption response:', error)
+    return {
+      tiktok: 'TikTok caption generated',
+      instagram: 'Instagram caption generated',
+      youtube: 'YouTube caption generated'
+    }
+  }
+}
+
+const extractCaptionContent = (section, platform) => {
+  const lines = section.split('\n').filter(line => line.trim())
+  const contentLines = []
+  let foundHeader = false
+  let inContent = false
+  
+  for (let line of lines) {
+    line = line.trim()
+    
+    // Skip instruction lines and formatting
+    if (line.includes('[FRESH hook') || 
+        line.includes('[DIFFERENT fresh') ||
+        line.includes('[Reflection') ||
+        line.includes('[Hashtags') ||
+        line.includes('[Summary') ||
+        line.includes('[CTA') ||
+        line.includes('DO NOT COPY') ||
+        line.includes('use different viral format') ||
+        line.includes('following the fresh hook')) {
+      continue
+    }
+    
+    if (line.includes(`${platform} CAPTION`)) {
+      foundHeader = true
+      inContent = true
+      continue
+    }
+    
+    if (foundHeader && inContent && line && 
+        !line.includes('CAPTION:') && 
+        !line.includes('---') &&
+        !line.includes('Generate') &&
+        !line.includes('structure above')) {
+      contentLines.push(line)
+    }
+  }
+  
+  return contentLines.join('\n').trim()
+}
+
+const fallbackCaptionParsing = (response) => {
+  const lines = response.split('\n').filter(line => line.trim())
+  
+  // Simple fallback - split content into three equal parts
+  const thirdLength = Math.floor(lines.length / 3)
+  
+  return {
+    tiktok: lines.slice(0, thirdLength).join('\n').trim(),
+    instagram: lines.slice(thirdLength, thirdLength * 2).join('\n').trim(),
+    youtube: lines.slice(thirdLength * 2).join('\n').trim()
+  }
+}

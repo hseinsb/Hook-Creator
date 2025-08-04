@@ -3,12 +3,11 @@ import { Zap, Copy, Youtube, Clock, MessageSquare, Quote, BarChart3, User, BookO
 import { generateSoulHookPrompt, analyzeBridgeType } from '../utils/promptSystem'
 import { generateHookWithGPT, parseGPTResponse } from '../utils/openai'
 
-const HookGenerator = () => {
-  const [input, setInput] = useState('')
-  const [apiKey, setApiKey] = useState(import.meta.env.VITE_OPENAI_API_KEY || '')
+const HookGenerator = ({ onInputChange, onApiKeyChange, onError, sharedInput = '', sharedApiKey = '' }) => {
+  const [input, setInput] = useState(sharedInput)
+  const [apiKey, setApiKey] = useState(sharedApiKey)
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
-  const [error, setError] = useState('')
   const [showApiKeyInput, setShowApiKeyInput] = useState(!import.meta.env.VITE_OPENAI_API_KEY)
 
   const bridgeIcons = {
@@ -25,20 +24,30 @@ const HookGenerator = () => {
     'Credential': 'Educational, instructional, authority-based'
   }
 
+  // Update shared state when local state changes
+  const handleInputChange = (value) => {
+    setInput(value)
+    onInputChange?.(value)
+  }
+
+  const handleApiKeyChange = (value) => {
+    setApiKey(value)
+    onApiKeyChange?.(value)
+  }
+
   const handleGenerate = async () => {
     if (!input.trim()) {
-      setError('Please enter a topic, script, or paragraph to generate hooks.')
+      onError?.('Please enter a topic, script, or paragraph to generate hooks.')
       return
     }
 
     if (!apiKey.trim()) {
-      setError('Please enter your OpenAI API key.')
+      onError?.('Please enter your OpenAI API key.')
       setShowApiKeyInput(true)
       return
     }
 
     setLoading(true)
-    setError('')
     
     try {
       const prompt = generateSoulHookPrompt(input)
@@ -47,7 +56,7 @@ const HookGenerator = () => {
       
       setResult(parsedResult)
     } catch (err) {
-      setError(err.message || 'Failed to generate hooks. Please try again.')
+      onError?.(err.message || 'Failed to generate hooks. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -91,7 +100,7 @@ const HookGenerator = () => {
             <textarea
               id="input"
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={(e) => handleInputChange(e.target.value)}
               placeholder="Enter your topic, script, or paragraph here...
 
 Examples:
@@ -120,11 +129,11 @@ Examples:
             </div>
             
             {showApiKeyInput && (
-              <input
+                              <input
                 id="apiKey"
                 type="password"
                 value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
+                onChange={(e) => handleApiKeyChange(e.target.value)}
                 placeholder="sk-..."
                 className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
               />
@@ -172,16 +181,7 @@ Examples:
         </div>
       </div>
 
-      {/* Error Display */}
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start space-x-3">
-          <AlertCircle className="h-5 w-5 text-red-500 mt-0.5" />
-          <div>
-            <h4 className="font-medium text-red-900">Error</h4>
-            <p className="text-red-700 text-sm mt-1">{error}</p>
-          </div>
-        </div>
-      )}
+
 
       {/* Results Display */}
       {result && (
